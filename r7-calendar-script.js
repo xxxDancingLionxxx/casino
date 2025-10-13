@@ -17,9 +17,9 @@
     'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/blur-circles.png';
   const BLUR_WIDTH = window.matchMedia('(max-width: 768px)').matches ? 78 : 112;
   const BLUR_HEIGHT = window.matchMedia('(max-width: 768px)').matches ? 72 : 102; 
-  const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 54 : 100;
-  const LIGHT_CIRCLE_WIDTH = window.matchMedia('(max-width: 768px)').matches ? 82 : 107;
-  const LIGHT_CIRCLE_HEIGHT = window.matchMedia('(max-width: 768px)').matches ? 82 : 107;
+  const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 54 : 150;
+  const LIGHT_CIRCLE_WIDTH = window.matchMedia('(max-width: 768px)').matches ? 82 : 200;
+  const LIGHT_CIRCLE_HEIGHT = window.matchMedia('(max-width: 768px)').matches ? 82 : 200;
   const LIGHT_CIRCLE_OFFSET_Y = window.matchMedia('(max-width: 768px)').matches ? 1 : 1; 
   // Helper functions
   const createImage = className => {
@@ -49,8 +49,8 @@
     const path = gElement.querySelector('path');
     if (!path) return null; 
     const bbox = path.getBBox();
-    const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? 0 : -1;
-    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 0 : -2; 
+    const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? 0 : 0;
+    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 0 : 1; 
     return {
       x: bbox.x + (bbox.width - CIRCLE_SIZE) / 2 + mobileOffsetX,
       y: bbox.y + (bbox.height - CIRCLE_SIZE) / 2 + mobileOffsetY,
