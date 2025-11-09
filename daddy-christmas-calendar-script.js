@@ -120,7 +120,7 @@
   }); 
   // Calendar initialization
   const initializeCalendarDays = () => {
-    const startDate = new Date('2025-10-11');
+    const startDate = new Date('2025-11-01');
     const currentDate = new Date();
     let timeDiff = currentDate - startDate;
     let originalDaysPassed = timeDiff >= 0 ? Math.floor(timeDiff / (1000 * 3600 * 24)) + 1 : 0; 
@@ -234,4 +234,5 @@
     initializeCalendarDays();
     initializeAccordions();
   }
+
 })();
