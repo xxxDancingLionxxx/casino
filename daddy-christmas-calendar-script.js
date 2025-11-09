@@ -1,6 +1,5 @@
 (function () {
   fitty('.fit-text');
-  // Constants
   const CIRCLE_IMAGE_CLASSES = {
     PREV: 'circle-prev-day',
     CURRENT: 'circle-current-day',
@@ -11,23 +10,18 @@
     CURRENT: 'https://daddy-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-current-day.png',
     FUTURE: 'https://daddy-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-future-day.png',
   }; 
-  // Размер для обычных дней
   const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 55 : 100;
-  // Размер для current_day (66 на mobile, 107 на desktop)
   const CURRENT_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? 66 : 130;
-  // Helper functions
   const createImage = className => {
     return document.createElementNS('http://www.w3.org/2000/svg', 'image');
   }; 
   const createCircleImage = dayType => {
     const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
     const size = dayType === 'CURRENT' ? CURRENT_DAY_SIZE : CIRCLE_SIZE;
-
     image.setAttributeNS(null, 'href', CIRCLE_IMAGES[dayType]);
     image.setAttributeNS(null, 'width', size);
     image.setAttributeNS(null, 'height', size);
     image.setAttributeNS(null, 'class', CIRCLE_IMAGE_CLASSES[dayType]);
-    
     return image;
   }; 
   const calculateCirclePosition = (gElement, forceSize = null) => {
@@ -36,7 +30,6 @@
     const bbox = path.getBBox();
     const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? 6 : 12;
     const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 0 : -1;
-    // Используем forceSize если передан, иначе определяем по типу дня
     const size = forceSize || (gElement.classList.contains('day-btn_current_day') ? CURRENT_DAY_SIZE : CIRCLE_SIZE);
     return {
       x: bbox.x + (bbox.width - size) / 2 + mobileOffsetX,
@@ -48,27 +41,31 @@
       .${CIRCLE_IMAGE_CLASSES.CURRENT}, 
       .${CIRCLE_IMAGE_CLASSES.FUTURE}`);
     const path = gElement.querySelector('path');
-
-    // Проверяем, является ли элемент последним в calendar
     const calendar = gElement.closest('.calendar');
     const isLastDay = calendar && gElement === calendar.querySelector('.day-btn:last-child');
-    
+    if (path) {
+      if (!isLastDay && gElement.classList.contains('day-btn_current_day')) {
+        const bbox = path.getBBox();
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+        path.setAttribute('transform', `translate(${centerX} ${centerY}) scale(1.2) translate(${-centerX} ${-centerY})`);
+      } else {
+        path.removeAttribute('transform');
+      }
+    }
     if (!existingCircle) {
       let circleType;
       if (gElement.classList.contains('day-btn_prev_day')) circleType = 'PREV';
       if (gElement.classList.contains('day-btn_current_day')) circleType = 'CURRENT';
       if (gElement.classList.contains('day-btn_future_day')) circleType = 'FUTURE'; 
       if (circleType) {
-        // Для последнего дня создаем изображение без маски
         if (isLastDay) {
           const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-          const size = Math.round(CIRCLE_SIZE * 1.5); // увеличиваем в 1.5 раза
-          
+          const size = Math.round(CIRCLE_SIZE * 1.5);
           image.setAttributeNS(null, 'href', CIRCLE_IMAGES[circleType]);
           image.setAttributeNS(null, 'width', size);
           image.setAttributeNS(null, 'height', size);
           image.setAttributeNS(null, 'class', CIRCLE_IMAGE_CLASSES[circleType]);
-          
           const position = calculateCirclePosition(gElement, size);
           if (position) {
             image.setAttributeNS(null, 'x', position.x);
@@ -80,7 +77,6 @@
             }
           }
         } else {
-          // Для всех остальных дней используем обычную маску
           const newCircle = createCircleImage(circleType);
           const position = calculateCirclePosition(gElement); 
           if (position) {
@@ -112,15 +108,13 @@
             !gElement.classList.contains('day-btn_prev_day') &&
             !gElement.classList.contains('day-btn_future_day')
           ) {
-            // Удален код для удаления изображений
           }
         }
       }
     });
   }); 
-  // Calendar initialization
   const initializeCalendarDays = () => {
-    const startDate = new Date('2025-11-01');
+    const startDate = new Date('2025-10-10');
     const currentDate = new Date();
     let timeDiff = currentDate - startDate;
     let originalDaysPassed = timeDiff >= 0 ? Math.floor(timeDiff / (1000 * 3600 * 24)) + 1 : 0; 
@@ -155,7 +149,6 @@
         dayElement.style.pointerEvents = 'none';
       }
     }); 
-    // Event listeners for modals
     document.addEventListener('click', e => {
       const trigger = e.target.closest('[data-popup-trigger]');
       if (!trigger || trigger.classList.contains('day-btn_future_day')) return; 
@@ -166,7 +159,6 @@
         popupModal.classList.add('is--visible');
         document.querySelector('.popup-overlay').classList.add('is-blacked-out');
         document.body.style.overflow = 'hidden'; 
-        // Add the .disabled class to base-button if the trigger has day-btn_prev_day class
         if (trigger.classList.contains('day-btn_prev_day')) {
           const baseButton = popupModal.querySelector('.base-button');
           if (baseButton) {
@@ -190,13 +182,11 @@
       }
     });
   }; 
-  // Initialize active elements and observer
   const initialize = () => {
     document.querySelectorAll('g.day-btn').forEach(element => {
       observer.observe(element, { attributes: true, attributeFilter: ['class'] });
     });
-  }; 
-  // Accordion functionality
+  };
   const initializeAccordions = () => {
     const accordions = document.querySelectorAll('.accordion'); 
     const openAccordion = accordion => {
@@ -221,8 +211,7 @@
         }
       };
     });
-  }; 
-  // DOM ready handlers
+  };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initialize();
@@ -234,5 +223,4 @@
     initializeCalendarDays();
     initializeAccordions();
   }
-
 })();
