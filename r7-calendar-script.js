@@ -1,123 +1,102 @@
 (function () {
   fitty('.fit-text');
-  // Constants
   const CIRCLE_IMAGE_CLASSES = {
     PREV: 'circle-prev-day',
     CURRENT: 'circle-current-day',
     FUTURE: 'circle-future-day',
   }; 
   const CIRCLE_IMAGES = {
-    PREV: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/circle-prev-day.png',
-    CURRENT: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/circle-current-day.png',
-    FUTURE: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/circle-future-day.png',
+    PREV: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-prev-day.png',
+    CURRENT: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-current-day.png',
+    FUTURE: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-future-day.png',
+    LAST: 'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-last-day.png',
   }; 
-  const CIRCLE_LIGHT_IMAGE =
-    'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/circle-light-current-day.png';
-  const BLUR_CIRCLES_IMAGE =
-    'https://r7casino-wordpress-test.s3.amazonaws.com/uploads/2025/10/blur-circles.png';
-  const BLUR_WIDTH = window.matchMedia('(max-width: 768px)').matches ? 78 : 112;
-  const BLUR_HEIGHT = window.matchMedia('(max-width: 768px)').matches ? 72 : 102; 
-  const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 54 : 150;
-  const LIGHT_CIRCLE_WIDTH = window.matchMedia('(max-width: 768px)').matches ? 82 : 200;
-  const LIGHT_CIRCLE_HEIGHT = window.matchMedia('(max-width: 768px)').matches ? 82 : 200;
-  const LIGHT_CIRCLE_OFFSET_Y = window.matchMedia('(max-width: 768px)').matches ? 1 : 1; 
-  // Helper functions
+  const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 77 : 152;
+  const CURRENT_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? 80 : 155;
   const createImage = className => {
     return document.createElementNS('http://www.w3.org/2000/svg', 'image');
   }; 
   const createCircleImage = dayType => {
-    const clipId = `circle-clip-${Date.now()}`; 
-    const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g'); 
-    clipPath.setAttributeNS(null, 'id', clipId);
-    circle.setAttributeNS(null, 'cx', CIRCLE_SIZE / 2);
-    circle.setAttributeNS(null, 'cy', CIRCLE_SIZE /2);
-    circle.setAttributeNS(null, 'r', CIRCLE_SIZE / 2); 
+    const size = dayType === 'CURRENT' ? CURRENT_DAY_SIZE : CIRCLE_SIZE;
     image.setAttributeNS(null, 'href', CIRCLE_IMAGES[dayType]);
-    image.setAttributeNS(null, 'width', CIRCLE_SIZE);
-    image.setAttributeNS(null, 'height', CIRCLE_SIZE);
+    image.setAttributeNS(null, 'width', size);
+    image.setAttributeNS(null, 'height', size);
     image.setAttributeNS(null, 'class', CIRCLE_IMAGE_CLASSES[dayType]);
-    image.setAttributeNS(null, 'clip-path', `url(#${clipId})`); 
-    clipPath.appendChild(circle);
-    group.appendChild(clipPath);
-    group.appendChild(image); 
-    return group;
+    return image;
   }; 
-  const calculateCirclePosition = gElement => {
+  const calculateCirclePosition = (gElement, forceSize = null) => {
     const path = gElement.querySelector('path');
     if (!path) return null; 
     const bbox = path.getBBox();
-    const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? 0 : 0;
-    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 0 : 1; 
+    const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? -3 : -10;
+    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 2 : 2;
+    const size = forceSize || (gElement.classList.contains('day-btn_current_day') ? CURRENT_DAY_SIZE : CIRCLE_SIZE);
     return {
-      x: bbox.x + (bbox.width - CIRCLE_SIZE) / 2 + mobileOffsetX,
-      y: bbox.y + (bbox.height - CIRCLE_SIZE) / 2 + mobileOffsetY,
+      x: bbox.x + (bbox.width - size) / 2 + mobileOffsetX,
+      y: bbox.y + (bbox.height - size) / 2 + mobileOffsetY,
     };
   }; 
   const handleCircleImages = gElement => {
     const existingCircle = gElement.querySelector(`.${CIRCLE_IMAGE_CLASSES.PREV}, 
       .${CIRCLE_IMAGE_CLASSES.CURRENT}, 
       .${CIRCLE_IMAGE_CLASSES.FUTURE}`);
-    const path = gElement.querySelector('path'); 
-    if (gElement.classList.contains('day-btn_current_day')) {
-      const existingLight = gElement.querySelector('.circle-light-current-day');
-      if (!existingLight && path) {
+    const path = gElement.querySelector('path');
+    const calendar = gElement.closest('.calendar');
+    const isLastDay = calendar && gElement === calendar.querySelector('.day-btn:last-child');
+    if (path) {
+      if (!isLastDay && gElement.classList.contains('day-btn_current_day')) {
         const bbox = path.getBBox();
-        const lightImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-        lightImage.setAttributeNS(null, 'href', CIRCLE_LIGHT_IMAGE);
-        lightImage.setAttributeNS(null, 'class', 'circle-light-current-day');
-        lightImage.setAttributeNS(null, 'width', LIGHT_CIRCLE_WIDTH);
-        lightImage.setAttributeNS(null, 'height', LIGHT_CIRCLE_HEIGHT);
-        lightImage.setAttributeNS(null, 'x', bbox.x + (bbox.width - LIGHT_CIRCLE_WIDTH) / 2);
-        lightImage.setAttributeNS(
-          null,
-          'y',
-          bbox.y + (bbox.height - LIGHT_CIRCLE_HEIGHT) / 2 + LIGHT_CIRCLE_OFFSET_Y
-        );
-        gElement.insertBefore(lightImage, gElement.firstChild);
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+        path.setAttribute('transform', `translate(${centerX} ${centerY}) scale(1.3) translate(${-centerX} ${-centerY})`);
+      } else {
+        path.removeAttribute('transform');
       }
-    } 
+    }
     if (!existingCircle) {
       let circleType;
       if (gElement.classList.contains('day-btn_prev_day')) circleType = 'PREV';
       if (gElement.classList.contains('day-btn_current_day')) circleType = 'CURRENT';
       if (gElement.classList.contains('day-btn_future_day')) circleType = 'FUTURE'; 
       if (circleType) {
-        const newCircle = createCircleImage(circleType);
-        const position = calculateCirclePosition(gElement); 
-        if (position) {
-          newCircle.setAttributeNS(null, 'transform', `translate(${position.x},${position.y})`); 
-          const pathElement = gElement.querySelector('path');
-          if (pathElement) {
-            pathElement.insertAdjacentElement('beforebegin', newCircle);
-          } else {
-            gElement.appendChild(newCircle);
-          } 
-          if (path) {
-            newCircle.onclick = path.onclick;
-            path.style.pointerEvents = 'none';
+        if (isLastDay) {
+          const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+          const size = Math.round(CIRCLE_SIZE * 1.3);
+          image.setAttributeNS(null, 'href', CIRCLE_IMAGES['LAST']);
+          image.setAttributeNS(null, 'width', size);
+          image.setAttributeNS(null, 'height', size);
+          image.setAttributeNS(null, 'class', CIRCLE_IMAGE_CLASSES[circleType]);
+          const position = calculateCirclePosition(gElement, size);
+          if (position) {
+            image.setAttributeNS(null, 'x', position.x);
+            image.setAttributeNS(null, 'y', position.y);
+            gElement.insertBefore(image, path);
+            if (path) {
+              image.onclick = path.onclick;
+              path.style.pointerEvents = 'none';
+            }
+          }
+        } else {
+          const newCircle = createCircleImage(circleType);
+          const position = calculateCirclePosition(gElement); 
+          if (position) {
+            newCircle.setAttributeNS(null, 'x', position.x);
+            newCircle.setAttributeNS(null, 'y', position.y);
+            const pathElement = gElement.querySelector('path');
+            if (pathElement) {
+              pathElement.insertAdjacentElement('beforebegin', newCircle);
+            } else {
+              gElement.appendChild(newCircle);
+            } 
+            if (path) {
+              newCircle.onclick = path.onclick;
+              path.style.pointerEvents = 'none';
+            }
           }
         }
       }
     } 
-    const addBlurOverlay = () => {
-      const existingBlur = gElement.querySelector('.blur-overlay');
-      if (!existingBlur && path) {
-        const bbox = path.getBBox();
-        const blurImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-        blurImage.setAttributeNS(null, 'href', BLUR_CIRCLES_IMAGE);
-        blurImage.setAttributeNS(null, 'class', 'blur-overlay');
-        blurImage.setAttributeNS(null, 'width', BLUR_WIDTH);
-        blurImage.setAttributeNS(null, 'height', BLUR_HEIGHT);
-        blurImage.setAttributeNS(null, 'x', bbox.x + bbox.width / 2 - BLUR_WIDTH / 2);
-        blurImage.setAttributeNS(null, 'y', bbox.y + bbox.height / 2 - BLUR_HEIGHT / 2 + 5);
-        blurImage.style.pointerEvents = 'none';
-        gElement.appendChild(blurImage);
-      }
-    }; 
-    addBlurOverlay();
   }; 
   const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
@@ -130,15 +109,13 @@
             !gElement.classList.contains('day-btn_prev_day') &&
             !gElement.classList.contains('day-btn_future_day')
           ) {
-            // Удален код для удаления изображений
           }
         }
       }
     });
   }); 
-  // Calendar initialization
   const initializeCalendarDays = () => {
-    const startDate = new Date('2025-10-05');
+    const startDate = new Date('2025-11-01');
     const currentDate = new Date();
     let timeDiff = currentDate - startDate;
     let originalDaysPassed = timeDiff >= 0 ? Math.floor(timeDiff / (1000 * 3600 * 24)) + 1 : 0; 
@@ -173,7 +150,6 @@
         dayElement.style.pointerEvents = 'none';
       }
     }); 
-    // Event listeners for modals
     document.addEventListener('click', e => {
       const trigger = e.target.closest('[data-popup-trigger]');
       if (!trigger || trigger.classList.contains('day-btn_future_day')) return; 
@@ -184,7 +160,6 @@
         popupModal.classList.add('is--visible');
         document.querySelector('.popup-overlay').classList.add('is-blacked-out');
         document.body.style.overflow = 'hidden'; 
-        // Add the .disabled class to base-button if the trigger has day-btn_prev_day class
         if (trigger.classList.contains('day-btn_prev_day')) {
           const baseButton = popupModal.querySelector('.base-button');
           if (baseButton) {
@@ -208,13 +183,11 @@
       }
     });
   }; 
-  // Initialize active elements and observer
   const initialize = () => {
     document.querySelectorAll('g.day-btn').forEach(element => {
       observer.observe(element, { attributes: true, attributeFilter: ['class'] });
     });
-  }; 
-  // Accordion functionality
+  };
   const initializeAccordions = () => {
     const accordions = document.querySelectorAll('.accordion'); 
     const openAccordion = accordion => {
@@ -239,8 +212,7 @@
         }
       };
     });
-  }; 
-  // DOM ready handlers
+  };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initialize();
