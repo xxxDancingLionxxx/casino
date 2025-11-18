@@ -11,7 +11,7 @@
     FUTURE: 'https://catcasino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-future-day.png',
   }; 
   const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 77 : 152;
-  const CURRENT_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? 80 : 165;
+  const CURRENT_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? 80 : 160;
   const LAST_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? Math.round(77 * 1.3) : Math.round(152 * 1.3);
   const createImage = className => {
     return document.createElementNS('http://www.w3.org/2000/svg', 'image');
@@ -35,7 +35,7 @@
     if (!path) return null;
     const bbox = path.getBBox();
     const mobileOffsetY = window.matchMedia('(max-width: 768px)').matches ? -3 : -7;
-    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 1.5 : 5;
+    const mobileOffsetX = window.matchMedia('(max-width: 768px)').matches ? 1.5 : 3;
     let size = CIRCLE_SIZE;
     if (forceSize) {
       size = forceSize;
@@ -241,3 +241,4 @@
     initializeAccordions();
   }
 })();
+
