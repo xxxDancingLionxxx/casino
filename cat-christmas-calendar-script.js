@@ -6,9 +6,9 @@
     FUTURE: 'circle-future-day',
   }; 
   const CIRCLE_IMAGES = {
-    PREV: './img/circle-prev-day.png',
-    CURRENT: './img/circle-current-day.png',
-    FUTURE: './img/circle-future-day.png',
+    PREV: 'https://catcasino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-prev-day.png',
+    CURRENT: 'https://catcasino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-current-day.png',
+    FUTURE: 'https://catcasino-wordpress-test.s3.amazonaws.com/uploads/2025/11/circle-future-day.png',
   }; 
   const CIRCLE_SIZE = window.matchMedia('(max-width: 768px)').matches ? 77 : 152;
   const CURRENT_DAY_SIZE = window.matchMedia('(max-width: 768px)').matches ? 80 : 165;
